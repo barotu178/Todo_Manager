@@ -3,12 +3,13 @@ package com.fidelity.dao;
 import com.fidelity.model.Task;
 
 public class TaskDAOImpl implements TaskDAO {
+
     private Task[] tasks = new Task[50];
     private int index = 0;
 
     public void addTask(Task task) {
         tasks[index++] = task;
-        System.out.println("Task Added!");
+        System.out.println("Task Added");
     }
 
     public void updateTask(int id, String title, String text, String assignedTo) {
@@ -38,20 +39,6 @@ public class TaskDAOImpl implements TaskDAO {
         System.out.println("Task not found");
     }
 
-    public void searchTask(String title) {
-        for (int i = 0; i < index; i++) {
-            if (tasks[i].getTitle().equalsIgnoreCase(title)) {
-                System.out.println(tasks[i]);
-            }
-        }
-    }
-
-    public void showAll() {
-        for (int i = 0; i < index; i++) {
-            System.out.println(tasks[i]);
-        }
-    }
-
     public void showByUser(String username) {
         for (int i = 0; i < index; i++) {
             if (tasks[i].getAssignedTo().equalsIgnoreCase(username)) {
@@ -59,5 +46,65 @@ public class TaskDAOImpl implements TaskDAO {
             }
         }
     }
-}
 
+    public void markCompleted(int id, String username) {
+        for (int i = 0; i < index; i++) {
+            if (tasks[i].getTaskId() == id &&
+                tasks[i].getAssignedTo().equalsIgnoreCase(username)) {
+
+                tasks[i].markCompleted();
+                System.out.println("Task marked as completed");
+                return;
+            }
+        }
+        System.out.println("Task not found or unauthorized");
+    }
+
+    public void showCompleted(String username) {
+        for (int i = 0; i < index; i++) {
+            if (tasks[i].getAssignedTo().equalsIgnoreCase(username)
+                    && tasks[i].isCompleted()) {
+                System.out.println(tasks[i]);
+            }
+        }
+    }
+
+    public void showIncomplete(String username) {
+        for (int i = 0; i < index; i++) {
+            if (tasks[i].getAssignedTo().equalsIgnoreCase(username)
+                    && !tasks[i].isCompleted()) {
+                System.out.println(tasks[i]);
+            }
+        }
+    }
+
+    public void sortByDateAsc(String username) {
+        for (int i = 0; i < index - 1; i++) {
+            for (int j = i + 1; j < index; j++) {
+                if (tasks[i].getCompletionDate()
+                        .isAfter(tasks[j].getCompletionDate())) {
+
+                    Task temp = tasks[i];
+                    tasks[i] = tasks[j];
+                    tasks[j] = temp;
+                }
+            }
+        }
+        showByUser(username);
+    }
+
+    public void sortByDateDesc(String username) {
+        for (int i = 0; i < index - 1; i++) {
+            for (int j = i + 1; j < index; j++) {
+                if (tasks[i].getCompletionDate()
+                        .isBefore(tasks[j].getCompletionDate())) {
+
+                    Task temp = tasks[i];
+                    tasks[i] = tasks[j];
+                    tasks[j] = temp;
+                }
+            }
+        }
+        showByUser(username);
+    }
+}

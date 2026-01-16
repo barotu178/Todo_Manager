@@ -1,10 +1,14 @@
 package com.fidelity.app;
 
 import java.util.Scanner;
-import com.fidelity.model.*;
+import java.time.LocalDate;
+
 import com.fidelity.dao.*;
+import com.fidelity.model.*;
+import com.fidelity.exception.*;
 
 public class Main {
+
     public static void main(String[] args) {
 
         Scanner sc = new Scanner(System.in);
@@ -46,48 +50,48 @@ public class Main {
 
                 while (true) {
                     System.out.println("0.Logout");
-                    if (user.getRole().equals("CLIENT")) {
-                        System.out.println("1.Add 2.Update 3.Delete 4.Search 5.View All");
+
+                    if (user instanceof Client) {
+                        System.out.println("1.Add 2.Update 3.Delete 4.Sort ASC 5.Sort DESC");
                     } else {
-                        System.out.println("1.View My Tasks");
+                        System.out.println("1.View 2.Mark Completed 3.View Completed 4.View Pending 5.Sort ASC 6.Sort DESC");
                     }
 
                     int op = sc.nextInt();
                     sc.nextLine();
+
                     if (op == 0) break;
 
-                    if (user.getRole().equals("CLIENT")) {
+                    if (user instanceof Client) {
                         if (op == 1) {
                             System.out.print("Title: ");
                             String t = sc.nextLine();
                             System.out.print("Text: ");
                             String tx = sc.nextLine();
-                            System.out.print("Assign to: ");
-                            String a = sc.nextLine();
-                            taskDAO.addTask(new Task(t, tx, a));
-                        }
-                        if (op == 2) {
-                            System.out.print("ID: ");
-                            int id = sc.nextInt(); sc.nextLine();
-                            System.out.print("New Title: ");
-                            String t = sc.nextLine();
-                            System.out.print("New Text: ");
-                            String tx = sc.nextLine();
                             System.out.print("Assign To: ");
                             String a = sc.nextLine();
-                            taskDAO.updateTask(id, t, tx, a);
+                            System.out.print("Completion Date (YYYY-MM-DD): ");
+                            LocalDate d = LocalDate.parse(sc.nextLine());
+
+                            taskDAO.addTask(new Task(t, tx, a, d));
                         }
-                        if (op == 3) {
-                            System.out.print("ID: ");
-                            taskDAO.deleteTask(sc.nextInt());
-                        }
-                        if (op == 4) {
-                            System.out.print("Title: ");
-                            taskDAO.searchTask(sc.nextLine());
-                        }
-                        if (op == 5) taskDAO.showAll();
+                        if (op == 4)
+                            taskDAO.sortByDateAsc(user.getUsername());
+                        if (op == 5)
+                            taskDAO.sortByDateDesc(user.getUsername());
                     } else {
-                        taskDAO.showByUser(user.getUsername());
+                        if (op == 2) {
+                            System.out.print("Task ID: ");
+                            taskDAO.markCompleted(sc.nextInt(), user.getUsername());
+                        }
+                        if (op == 3)
+                            taskDAO.showCompleted(user.getUsername());
+                        if (op == 4)
+                            taskDAO.showIncomplete(user.getUsername());
+                        if (op == 5)
+                            taskDAO.sortByDateAsc(user.getUsername());
+                        if (op == 6)
+                            taskDAO.sortByDateDesc(user.getUsername());
                     }
                 }
             }
@@ -95,4 +99,3 @@ public class Main {
         sc.close();
     }
 }
-
